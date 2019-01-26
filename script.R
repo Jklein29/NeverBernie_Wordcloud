@@ -36,51 +36,25 @@ bern_tweet <- tm_map(bern_tweet, removeWords, stopwords("english"))
 bern_tweet <- tm_map(bern_tweet, removePunctuation)
 bern_tweet <- tm_map(bern_tweet, stripWhitespace)
 
+# Drop words
 
+bern_tweet <- tm_map(bern_tweet, removeWords, c("bernie", "sanders", "never", "will", "vote", 
+                                                "don", "just", "can", "run", "get", "one", 
+                                                "now", "let", "isn")) 
 
+# Create dataframe of results
 
 TermDocumentMatrix(bern_tweet) %>% 
-  as.matrix(tdm) -> b_matr
+  as.matrix() -> b_matr
 
-sort(rowSums(b_matr), decreasing = T) -> v
-
-%>% 
-  data.frame(word = names(.), freq = .)
+b_vect <- sort(rowSums(b_matr), decreasing = T)
 
 
+bern_data <- data.frame(word = names(b_vect), freq = b_vect)
 
-bern_dtm <- TermDocumentMatrix(bern_tweet)
-bern_m <- as.matrix(bern_dtm)
-v <- sort(rowSums(bern_m),decreasing=TRUE)
-d <- data.frame(word = names(v),freq=v)
-head(d, 10)
+# Generate worldcloud
 
+wordcloud(words = bern_data$word, freq = bern_data$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
 
-
-ts_plot(newbern)
-
-## load rtweet package
-library(twitteR)
-library(rtweet)
-library(tidyverse)
-
-consumer_key <- "IfbZ7YKEEywOsHirlaiF4mtnV"
-consumer_secret <- "aXzpgtkhwCcEUL7YWoSZugPcSEowUz0iNcnXf8dtpBPWxemV18"
-access_token <- "968689359808589824-4G1sItdXDbfekG8y0Oupvems6sf6iOZ"
-access_secret <- "HeLyLYGGdvlcQNV2Se03Z5mU2ogdTT676SZPr0SIRtopi"
-options(httr_oauth_cache=T) 
-setup_twitter_oauth(consumer_key,
-                    consumer_secret,
-                    access_token,
-                    access_secret)
-
-
-
-table(nbern$location)
-
-as.data.frame(table(nbern$location)) %>% 
-  .[order(.$Freq, decreasing = T), ] %>% 
-  .[1:25, ]
-
-
-[order(nbern$location, decreasing = T), ]
